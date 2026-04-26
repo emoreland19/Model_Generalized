@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tiered Wholesale Distribution — Case Study</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1E2761;--navy2:#253580;--navy3:#1E3A5F;
+  --gold:#C9A84C;--white:#fff;--bg:#f9f8f6;
+  --surface:#fff;--surface2:#F1F4F9;--border:rgba(0,0,0,.09);
+  --text:#1a1a18;--text2:#5c5b57;--text3:#9b9a95;
+  --blue:#185FA5;--green:#1A6B3C;--amber:#854F0B;--red:#C0392B;--dgray:#334155;
+  --radius:10px;--radius-sm:6px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:2rem 1rem 4rem;font-size:14px}
+.page{max-width:880px;margin:0 auto}
+
+/* Header */
+.header{margin-bottom:1.75rem}
+.header-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:8px}
+.kicker{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text3)}
+.badges{display:flex;gap:6px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--surface2);color:var(--navy);border:0.5px solid var(--border)}
+.badge.gold{background:#FDF3DC;color:#7A5C0A;border-color:#E8C96A}
+h1{font-size:22px;font-weight:700;color:var(--navy);line-height:1.2}
+.subtitle{font-size:13px;color:var(--text2);margin-top:5px;line-height:1.55}
+.gold-rule{height:2px;background:var(--gold);margin:14px 0 0;border:none}
+
+/* Context strip */
+.context-strip{background:var(--navy);border-radius:var(--radius);padding:14px 20px;margin:1.5rem 0;display:grid;grid-template-columns:1fr 1px 1fr 1px 1fr 1px 1fr;gap:0}
+.ctx-div{background:rgba(255,255,255,.12)}
+.ctx-item{padding:0 20px}
+.ctx-item:first-child{padding-left:0}
+.ctx-item:last-child{padding-right:0}
+.ctx-val{font-size:17px;font-weight:700;color:var(--white)}
+.ctx-lbl{font-size:10px;color:#9BAFD4;margin-top:3px}
+
+/* Section label */
+.slabel{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:9px}
+
+/* Context box */
+.context-box{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.5rem;border-left:3px solid var(--gold)}
+.context-box p{font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:8px}
+.context-box p:last-child{margin-bottom:0}
+.context-box strong{color:var(--text);font-weight:600}
+
+/* Tier grid */
+.tier-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+.tier-card{background:var(--surface);border-radius:var(--radius);border:0.5px solid var(--border);overflow:hidden}
+.tier-accent{height:4px}
+.t1 .tier-accent{background:var(--blue)}
+.t2 .tier-accent{background:var(--green)}
+.t3 .tier-accent{background:var(--amber)}
+.tier-body{padding:14px 16px}
+.tier-name{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:3px}
+.tier-vol{font-size:11px;color:var(--text2);margin-bottom:10px}
+.tier-price{font-size:34px;font-weight:700;line-height:1;margin-bottom:3px}
+.t1 .tier-price{color:var(--blue)}
+.t2 .tier-price{color:var(--green)}
+.t3 .tier-price{color:var(--amber)}
+.tier-price-lbl{font-size:11px;color:var(--text2);margin-bottom:10px}
+.tier-divider{height:1px;background:var(--border);margin:8px 0}
+.tier-stat{display:flex;justify-content:space-between;padding:3px 0;font-size:12px}
+.tier-stat-lbl{color:var(--text2)}
+.tier-stat-val{font-weight:600}
+.t1 .gm,.t2 .gm{color:var(--green)}
+.t3 .gm{color:var(--amber)}
+.t1 .gp,.t2 .gp{color:var(--green)}
+.t3 .gp{color:var(--amber)}
+.partner-spread{color:var(--dgray)}
+
+/* Key terms */
+.terms-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.5rem}
+.term-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);overflow:hidden}
+.term-top{height:4px;background:var(--navy)}
+.term-body{padding:12px 14px}
+.term-label{font-size:9px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:5px}
+.term-val{font-size:24px;font-weight:700;color:var(--navy);line-height:1.1}
+.term-val.sm{font-size:18px}
+.term-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.term-div{height:1px;background:var(--border);margin:8px 0}
+.term-note{font-size:11px;color:var(--navy);font-style:italic;line-height:1.5}
+
+/* Partner economics */
+.econ-flow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.econ-card{border-radius:var(--radius-sm);padding:12px 14px;border:0.5px solid var(--border)}
+.econ-card.buy{background:#E8EDF8}
+.econ-card.sell{background:#E8F5ED}
+.econ-card.keep{background:#E8F5ED}
+.econ-lbl{font-size:11px;color:var(--text2);margin-bottom:4px}
+.econ-val{font-size:22px;font-weight:700}
+.econ-val.navy{color:var(--navy)}
+.econ-val.green{color:var(--green)}
+.econ-note{font-size:10px;color:var(--text3);margin-top:3px}
+.gm-bar{background:var(--navy3);border-radius:var(--radius-sm);padding:10px 16px;margin-bottom:1.5rem;font-size:12px;color:var(--white);line-height:1.55}
+
+/* Platform card */
+.platform-card{background:var(--navy);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.5rem}
+.platform-label{font-size:9px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.platform-price{font-size:34px;font-weight:700;color:var(--white);line-height:1.1}
+.platform-sub{font-size:11px;color:#9BAFD4;margin-top:5px;margin-bottom:10px}
+.platform-div{height:1px;background:#3B5DA8;margin:10px 0}
+.platform-text{font-size:12px;color:#C0D0F0;font-style:italic;line-height:1.55;margin-bottom:6px}
+.platform-hedge{font-size:12px;color:#9BAFD4;line-height:1.55}
+
+/* Highlights / risks */
+.hr-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:1.5rem}
+.hr-section{}
+.hr-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px;padding-bottom:5px;border-bottom:2px solid}
+.hr-title.green{color:var(--green);border-color:var(--green)}
+.hr-title.red{color:var(--red);border-color:var(--red)}
+.hr-item{font-size:12px;color:var(--dgray);padding:5px 0 5px 14px;position:relative;line-height:1.5}
+.hr-item::before{content:"•";position:absolute;left:0}
+.hr-item.g::before{color:var(--green)}
+.hr-item.r::before{color:var(--red)}
+
+/* Design principles */
+.principles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1.5rem}
+.principle{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px}
+.principle-num{font-size:24px;font-weight:700;color:var(--surface2);line-height:1;margin-bottom:4px}
+.principle-title{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:4px}
+.principle-body{font-size:11px;color:var(--text2);line-height:1.55}
+
+/* Toggle */
+.toggle-wrap{display:flex;align-items:center;gap:12px;margin:2rem 0 1.25rem}
+.toggle-label{font-size:13px;font-weight:600;color:var(--navy)}
+.toggle{position:relative;width:48px;height:26px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-track{position:absolute;inset:0;background:#ccc;border-radius:999px;transition:.3s}
+.toggle input:checked+.toggle-track{background:var(--navy)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#fff;border-radius:50%;transition:.3s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked~.toggle-thumb{transform:translateX(22px)}
+.toggle-hint{font-size:11px;color:var(--text3)}
+
+/* Revenue bridge */
+.bridge-section{display:none}
+.bridge-section.visible{display:block}
+.controls-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem 1.5rem;margin-bottom:1.25rem}
+.controls-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px 2rem}
+.ctrl{display:flex;flex-direction:column;gap:5px}
+.ctrl-top{display:flex;justify-content:space-between;font-size:12px;color:var(--text2)}
+.ctrl-top span{font-weight:600;color:var(--text)}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:2px;background:rgba(0,0,0,.15);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--navy);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.ctrl-hint{font-size:10px;color:var(--text3);margin-top:2px}
+
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1.25rem}
+.metric{background:var(--surface2);border-radius:var(--radius);padding:10px 12px;border:0.5px solid var(--border)}
+.metric-val{font-size:19px;font-weight:700}
+.metric-val.blue{color:var(--blue)}
+.metric-val.green{color:var(--green)}
+.metric-val.amber{color:var(--amber)}
+.metric-lbl{font-size:10px;color:var(--text2);margin-top:3px;line-height:1.4}
+
+.legend{display:flex;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+.bar-section{margin-bottom:1.25rem}
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.bar-yr{font-size:12px;color:var(--text2);width:40px;flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:26px;background:var(--surface2);border-radius:4px;overflow:hidden;display:flex}
+.seg{height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;padding:0 4px}
+.seg-gp{background:#185FA5}
+.seg-cert{background:#854F0B}
+.seg-paf{background:#3B6D11}
+.bar-amt{font-size:12px;font-weight:600;color:var(--text);width:62px;text-align:right;flex-shrink:0}
+
+.table-wrap{overflow-x:auto;margin-bottom:1.25rem}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{padding:7px 10px;text-align:right;font-weight:600;color:var(--text2);border-bottom:0.5px solid var(--border);font-size:11px;white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:7px 10px;text-align:right;border-bottom:0.5px solid var(--border);color:var(--text)}
+td:first-child{text-align:left;color:var(--text2);font-weight:500}
+tr.total-row td{font-weight:700;border-top:1.5px solid rgba(0,0,0,.15);border-bottom:none}
+tr.gp-row td{color:var(--blue);font-weight:500}
+tr.paf-row td{color:var(--green);font-weight:500}
+tr.cert-row td{color:var(--amber);font-weight:500}
+
+/* Note */
+.note-box{background:var(--surface2);border-left:3px solid var(--border);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:10px 14px;font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1.5rem}
+.note-box strong{color:var(--text);font-weight:600}
+
+/* Footnotes */
+.footnotes{margin-top:2rem;padding-top:1rem;border-top:0.5px solid var(--border)}
+.footnotes-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+.footnote{font-size:11px;color:var(--text3);padding:3px 0 3px 18px;position:relative;line-height:1.5}
+.footnote::before{position:absolute;left:0;font-weight:600;color:var(--text2)}
+.fn1::before{content:"1."}
+.fn2::before{content:"2."}
+.fn3::before{content:"3."}
+.fn4::before{content:"4."}
+.fn5::before{content:"5."}
+
+/* Footer */
+.footer{margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid var(--border);display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.footer-note{font-size:10px;color:var(--text3)}
+
+sup{font-size:8px;color:var(--text3);vertical-align:super}
+
+.section-divider{height:1px;background:var(--border);margin:2rem 0 1.5rem}
+
+@media(max-width:620px){
+  .tier-grid,.terms-grid,.hr-grid,.principles,.econ-flow,.controls-grid,.metrics-grid{grid-template-columns:1fr 1fr}
+  .context-strip{grid-template-columns:1fr 1fr}
+  .ctx-div{display:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-top">
+    <div class="kicker">Case Study · Channel Pricing Strategy</div>
+    <div class="badges">
+      <div class="badge">L&D · Assessment Software</div>
+      <div class="badge gold">Illustrative Model</div>
+    </div>
+  </div>
+  <h1>Tiered wholesale distribution model<br>for an L&D assessment platform</h1>
+  <p class="subtitle">How a leadership assessment software company designed a tiered wholesale channel program — balancing partner incentives, margin protection, and inventory discipline through pricing architecture alone.</p>
+  <hr class="gold-rule">
+</div>
+
+<!-- CONTEXT -->
+<div class="slabel">Case background</div>
+<div class="context-box">
+  <p><strong>Assessment Co.</strong> is a leadership consulting firm offering a proprietary personality and team dynamics assessment tool used by organizational consultants, executive coaches, and HR leaders. The company sells directly to clients at a standard rate of <strong>$900 per assessment</strong> (MSRP).</p>
+  <p>To scale distribution without adding headcount, Assessment Co. designed an <strong>Alliance partner program</strong> — a tiered wholesale channel allowing certified consulting firms to buy assessments at a wholesale price and resell them independently. The design challenge: how do you incentivize volume distribution while protecting margin, preventing stockpiling, and keeping the model simple enough for a small team to manage?</p>
+  <p>Primary market research across <strong>920 outreaches and 43 decision-maker conversations</strong> validated demand and informed pricing assumptions. The model below reflects the resulting architecture.<sup>1</sup></p>
+</div>
+
+<!-- CONTEXT STRIP -->
+<div class="context-strip">
+  <div class="ctx-item">
+    <div class="ctx-val">$900</div>
+    <div class="ctx-lbl">MSRP / direct rate</div>
+  </div>
+  <div class="ctx-div"></div>
+  <div class="ctx-item">
+    <div class="ctx-val">~$225</div>
+    <div class="ctx-lbl">Est. cost of sales<sup style="color:#9BAFD4">2</sup></div>
+  </div>
+  <div class="ctx-div"></div>
+  <div class="ctx-item">
+    <div class="ctx-val">58%</div>
+    <div class="ctx-lbl">Avg. partner adoption likelihood<sup style="color:#9BAFD4">1</sup></div>
+  </div>
+  <div class="ctx-div"></div>
+  <div class="ctx-item">
+    <div class="ctx-val">48.4%</div>
+    <div class="ctx-lbl">Company blended gross margin<sup style="color:#9BAFD4">2</sup></div>
+  </div>
+</div>
+
+<!-- DESIGN PRINCIPLES -->
+<div class="slabel">Three design principles behind the model</div>
+<div class="principles">
+  <div class="principle">
+    <div class="principle-num">01</div>
+    <div class="principle-title">Volume wins, but margin must be protected</div>
+    <div class="principle-body">Lower wholesale prices at higher volumes grow total gross profit even as per-unit margin compresses. The model only works if volume gains outpace margin loss.</div>
+  </div>
+  <div class="principle">
+    <div class="principle-num">02</div>
+    <div class="principle-title">Partners keep 100% of consulting fees</div>
+    <div class="principle-body">Alliance partners are consulting firms — not lead generators. Offering a commission on consulting revenue would conflict with their core business. The wholesale spread is their incentive.</div>
+  </div>
+  <div class="principle">
+    <div class="principle-num">03</div>
+    <div class="principle-title">Pricing architecture replaces contractual policing</div>
+    <div class="principle-body">Rather than auditing delivery or enforcing use-it-or-lose-it provisions, an annual platform access fee creates natural holding costs on dormant inventory.</div>
+  </div>
+</div>
+
+<!-- TIER STRUCTURE -->
+<div class="slabel">Wholesale tier structure — volume thresholds unlock lower prices</div>
+<div class="tier-grid">
+  <div class="tier-card t1">
+    <div class="tier-accent"></div>
+    <div class="tier-body">
+      <div class="tier-name">Tier 1 — Entry<sup>3</sup></div>
+      <div class="tier-vol">1–144 assessments / yr</div>
+      <div class="tier-price">$500</div>
+      <div class="tier-price-lbl">wholesale / assessment</div>
+      <div class="tier-divider"></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">Gross margin</span><span class="tier-stat-val gm">55%</span></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">GP / assessment</span><span class="tier-stat-val gp">$275</span></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">Partner spread</span><span class="tier-stat-val partner-spread">$400</span></div>
+    </div>
+  </div>
+  <div class="tier-card t2">
+    <div class="tier-accent"></div>
+    <div class="tier-body">
+      <div class="tier-name">Tier 2 — Growth<sup>3</sup></div>
+      <div class="tier-vol">145–360 assessments / yr</div>
+      <div class="tier-price">$450</div>
+      <div class="tier-price-lbl">wholesale / assessment</div>
+      <div class="tier-divider"></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">Gross margin</span><span class="tier-stat-val gm">50%</span></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">GP / assessment</span><span class="tier-stat-val gp">$225</span></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">Partner spread</span><span class="tier-stat-val partner-spread">$450</span></div>
+    </div>
+  </div>
+  <div class="tier-card t3">
+    <div class="tier-accent"></div>
+    <div class="tier-body">
+      <div class="tier-name">Tier 3 — Scale<sup>3</sup></div>
+      <div class="tier-vol">361+ assessments / yr</div>
+      <div class="tier-price">$400</div>
+      <div class="tier-price-lbl">wholesale / assessment</div>
+      <div class="tier-divider"></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">Gross margin</span><span class="tier-stat-val gm">44%</span></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">GP / assessment</span><span class="tier-stat-val gp">$175</span></div>
+      <div class="tier-stat"><span class="tier-stat-lbl">Partner spread</span><span class="tier-stat-val partner-spread">$500</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PARTNER ECONOMICS -->
+<div class="slabel">Partner economics — per assessment sold at Tier 1</div>
+<div class="econ-flow">
+  <div class="econ-card buy">
+    <div class="econ-lbl">Partner buys from Assessment Co.</div>
+    <div class="econ-val navy">$500</div>
+    <div class="econ-note">Wholesale price · Tier 1</div>
+  </div>
+  <div class="econ-card sell">
+    <div class="econ-lbl">Partner sells to end client</div>
+    <div class="econ-val green">$900+</div>
+    <div class="econ-note">MSRP or above · uncapped upside</div>
+  </div>
+  <div class="econ-card keep">
+    <div class="econ-lbl">Partner keeps spread</div>
+    <div class="econ-val green">~$400</div>
+    <div class="econ-note">Grows to $500 at Tier 3</div>
+  </div>
+</div>
+<div class="gm-bar">
+  Assessment Co. gross margin on wholesale: &nbsp;Revenue $500 &nbsp;·&nbsp; Est. COGS ~$225 &nbsp;·&nbsp; Gross margin ~55%<sup style="color:#9BAFD4;font-size:9px">2</sup> &nbsp;—&nbsp; consistent with company blended margin of 48.4%
+</div>
+
+<!-- KEY TERMS -->
+<div class="slabel">Key partner program terms</div>
+<div class="terms-grid">
+  <div class="term-card">
+    <div class="term-top"></div>
+    <div class="term-body">
+      <div class="term-label">Practitioner Certification Fee</div>
+      <div class="term-val">$5,000</div>
+      <div class="term-sub">One-time · per partner onboarding</div>
+      <div class="term-div"></div>
+      <div class="term-note">Qualifies partner to administer and debrief assessments. Consistent with market comparables: Hogan certification $3,050–$5,450.<sup>4</sup> One client engagement recoups the full fee at any tier.</div>
+    </div>
+  </div>
+  <div class="term-card">
+    <div class="term-top"></div>
+    <div class="term-body">
+      <div class="term-label">Platform Access Fee</div>
+      <div class="term-val sm">$1,095 / yr</div>
+      <div class="term-sub">Year 2 onwards · all tiers</div>
+      <div class="term-div"></div>
+      <div class="term-note">Includes invitations to ongoing assessment training and education sessions. Benchmarked against SaaS partner program norms ($495–$4,800/yr range).<sup>5</sup> Partners holding dormant inventory pay $1,095/yr in carrying cost — the natural forcing function for active distribution.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PLATFORM CARD -->
+<div class="platform-card">
+  <div class="platform-label">The inventory hedge — why the platform fee matters</div>
+  <div style="display:grid;grid-template-columns:auto 1fr;gap:0 2rem;align-items:start">
+    <div>
+      <div class="platform-price">$1,095</div>
+      <div class="platform-sub">per year · Year 2+</div>
+    </div>
+    <div>
+      <div class="platform-div"></div>
+      <div class="platform-text">A partner who stockpiles assessments at the Tier 3 price ($400) and goes dormant pays $1,095/yr to sit on that inventory. After two years of inactivity the carrying cost creates real economic pressure to either distribute or exit — without requiring Assessment Co. to audit delivery or enforce contractual minimums.</div>
+      <div class="platform-hedge">Active partners who distribute regularly won't blink at $1,095. One assessment sale at any tier covers it entirely.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HIGHLIGHTS / RISKS -->
+<div class="slabel">Model evaluation</div>
+<div class="hr-grid">
+  <div class="hr-section">
+    <div class="hr-title green">Strengths</div>
+    <div class="hr-item g">Partner spread grows with volume ($400→$500) — the incentive is self-reinforcing without requiring cash commissions</div>
+    <div class="hr-item g">Pricing architecture alone enforces partner activity — no contractual complexity required</div>
+    <div class="hr-item g">Partners keep 100% of consulting fees — the assessment differentiates their practice rather than creating a revenue-sharing conflict</div>
+    <div class="hr-item g">$1,095 platform fee is well below SaaS partner program norms while still creating meaningful holding costs</div>
+    <div class="hr-item g">Gross margin at every tier is consistent with or above the company's blended margin — the channel is not dilutive</div>
+  </div>
+  <div class="hr-section">
+    <div class="hr-title red">Risks &amp; open questions</div>
+    <div class="hr-item r">Tier thresholds must measure assessments <em>delivered to clients</em>, not purchased — the model breaks if partners can front-load at Tier 3 prices</div>
+    <div class="hr-item r">A contractual MSRP floor is required — partners must not sell below $900, or the direct channel becomes structurally uncompetitive</div>
+    <div class="hr-item r">ICP separation (direct vs. alliance clients) must be defined before launch to prevent channel cannibalization</div>
+    <div class="hr-item r">Tier volume thresholds were derived from primary research baselines and should be validated against actual partner profiles before finalizing</div>
+  </div>
+</div>
+
+<!-- REVENUE BRIDGE TOGGLE -->
+<div class="section-divider"></div>
+<div class="toggle-wrap">
+  <span class="toggle-label">Show 5-year revenue bridge</span>
+  <label class="toggle">
+    <input type="checkbox" id="bridge-toggle" onchange="toggleBridge()">
+    <div class="toggle-track"></div>
+    <div class="toggle-thumb"></div>
+  </label>
+  <span class="toggle-hint">Interactive model — adjust inputs to explore scenarios</span>
+</div>
+
+<!-- REVENUE BRIDGE SECTION (hidden by default) -->
+<div class="bridge-section" id="bridge-section">
+
+  <div class="slabel">Model inputs</div>
+  <div class="controls-card">
+    <div class="controls-grid">
+      <div class="ctrl">
+        <div class="ctrl-top">Year 1 partners <span id="lbl-p">5</span></div>
+        <input type="range" min="1" max="15" step="1" value="5" id="sl-p" oninput="recalc()">
+        <div class="ctrl-hint">Target partner count at program launch.</div>
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-top">Annual partner growth <span id="lbl-g">15%</span></div>
+        <input type="range" min="5" max="40" step="5" value="15" id="sl-g" oninput="recalc()">
+        <div class="ctrl-hint">Net new partners added each year as % of prior year base.</div>
+      </div>
+      <div class="ctrl">
+        <div class="ctrl-top">Assessments / partner / yr <span id="lbl-a">144</span></div>
+        <input type="range" min="36" max="504" step="36" value="144" id="sl-a" oninput="recalc()">
+        <div class="ctrl-hint">Drives tier placement and GP per assessment.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slabel">Five-year summary</div>
+  <div class="metrics-grid">
+    <div class="metric"><div class="metric-val blue" id="m-y5rev">—</div><div class="metric-lbl">Year 5 wholesale revenue (gross)</div></div>
+    <div class="metric"><div class="metric-val green" id="m-y5gp">—</div><div class="metric-lbl">Year 5 assessment GP</div></div>
+    <div class="metric"><div class="metric-val" id="m-y5p">—</div><div class="metric-lbl">Year 5 partner count</div></div>
+    <div class="metric"><div class="metric-val amber" id="m-5yr">—</div><div class="metric-lbl">5-year cumulative GP</div></div>
+  </div>
+
+  <div class="slabel">Annual GP bridge — assessment spread + certification fees + platform access fees</div>
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#185FA5"></div>Assessment GP (wholesale margin)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#854F0B"></div>Practitioner Certification ($5,000 · new partners only)</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#3B6D11"></div>Platform access fee ($1,095/yr · Year 2+)</div>
+  </div>
+  <div class="bar-section" id="bars"></div>
+
+  <div class="slabel">Detailed year-by-year model</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="text-align:left">Metric</th>
+          <th>Year 1</th><th>Year 2</th><th>Year 3</th><th>Year 4</th><th>Year 5</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="note-box" id="note-box"></div>
+</div>
+
+<!-- FOOTNOTES -->
+<div class="footnotes">
+  <div class="footnotes-title">Footnotes</div>
+  <div class="footnote fn1">Primary market research: 920 outreaches, 43 conversations, 14 hot leads, 58% average adoption likelihood from decision-makers who provided a quantified response. Research conducted across small and large leadership consulting firms.</div>
+  <div class="footnote fn2">COGS estimate (~$225/assessment) is a back-of-envelope figure based on support labor and cloud hosting costs at 500+ annual assessment volume. Requires validation against project-level cost allocation. Blended gross margin (48.4%) based on company FY2025A actuals.</div>
+  <div class="footnote fn3">Tier volume thresholds (1–144, 145–360, 361+) derived from primary research baseline of 36 assessments per coach per year. Should be validated against actual partner profiles before contract execution. Tier thresholds must measure assessments delivered to end clients, not purchased from Assessment Co.</div>
+  <div class="footnote fn4">$5,000 Practitioner Certification — proposed. Consistent with market comparables: Hogan Assessments certification $3,050–$5,450 (MetaSkills, 2026).</div>
+  <div class="footnote fn5">$1,095 annual platform access fee — proposed. Year 2 onwards. Benchmarked against SaaS partner program norms ($495–$4,800/yr range). HubSpot Solutions Partner Program charges $4,800/yr at the base tier.</div>
+</div>
+
+<div class="footer">
+  <div class="footer-note">Channel Pricing Case Study · L&D Assessment Software · Illustrative model · Confidential</div>
+  <div class="footer-note">T1 $500 (1–144) · T2 $450 (145–360) · T3 $400 (361+) · COGS ~$225 · Cert $5K · Platform $1,095/yr</div>
+</div>
+
+</div>
+
+<script>
+const COGS=225,PRICES=[500,450,400],CERT=5000,PAF=1095;
+
+function toggleBridge(){
+  const section=document.getElementById('bridge-section');
+  const on=document.getElementById('bridge-toggle').checked;
+  section.classList.toggle('visible',on);
+  if(on) recalc();
+}
+
+function tierIdx(a){return a<=144?0:a<=360?1:2;}
+function fmtK(n){
+  if(n>=1000000)return '$'+(n/1000000).toFixed(2)+'M';
+  if(n>=1000)return '$'+Math.round(n/1000)+'K';
+  return '$'+Math.round(n);
+}
+function fmtM(n){return n>=1000000?'$'+(n/1000000).toFixed(2)+'M':'$'+Math.round(n/1000)+'K';}
+function pct(n){return Math.round(n)+'%';}
+
+function recalc(){
+  const p0=parseInt(document.getElementById('sl-p').value);
+  const g=parseInt(document.getElementById('sl-g').value)/100;
+  const apy=parseInt(document.getElementById('sl-a').value);
+  document.getElementById('lbl-p').textContent=p0;
+  document.getElementById('lbl-g').textContent=Math.round(g*100)+'%';
+  document.getElementById('lbl-a').textContent=apy;
+
+  const years=[];
+  let prev=0;
+  for(let y=1;y<=5;y++){
+    const partners=y===1?p0:Math.round(years[y-2].partners*(1+g));
+    const newP=partners-prev;
+    const t=tierIdx(apy);
+    const price=PRICES[t];
+    const gpPer=price-COGS;
+    const assessGP=gpPer*apy*partners;
+    const certRev=Math.max(0,newP)*CERT;
+    const pafRev=y===1?0:prev*PAF;
+    const totalGP=assessGP+certRev+pafRev;
+    years.push({y,partners,newP,price,gpPer,assessGP,certRev,pafRev,totalGP,
+      wholesaleRev:price*apy*partners,gmPct:Math.round(gpPer/price*100)});
+    prev=partners;
+  }
+
+  const y5=years[4];
+  const cum=years.reduce((s,yr)=>s+yr.totalGP,0);
+  document.getElementById('m-y5rev').textContent=fmtM(y5.wholesaleRev);
+  document.getElementById('m-y5gp').textContent=fmtM(y5.assessGP);
+  document.getElementById('m-y5p').textContent=y5.partners+' partners';
+  document.getElementById('m-5yr').textContent=fmtM(cum);
+
+  const maxGP=Math.max(...years.map(yr=>yr.totalGP));
+  const barsEl=document.getElementById('bars');
+  barsEl.innerHTML='';
+  years.forEach(yr=>{
+    const gpW=Math.max(0,Math.round(yr.assessGP/maxGP*100));
+    const certW=Math.max(0,Math.round(yr.certRev/maxGP*100));
+    const pafW=Math.max(0,Math.round(yr.pafRev/maxGP*100));
+    const row=document.createElement('div');
+    row.className='bar-row';
+    row.innerHTML=`<div class="bar-yr">Yr ${yr.y}</div>
+      <div class="bar-track">
+        <div class="seg seg-gp" style="width:${gpW}%">${gpW>14?fmtK(yr.assessGP):''}</div>
+        <div class="seg seg-cert" style="width:${certW}%">${certW>9?fmtK(yr.certRev):''}</div>
+        <div class="seg seg-paf" style="width:${pafW}%">${pafW>9?fmtK(yr.pafRev):''}</div>
+      </div>
+      <div class="bar-amt">${fmtK(yr.totalGP)}</div>`;
+    barsEl.appendChild(row);
+  });
+
+  const t=tierIdx(apy);
+  const tNames=['Tier 1 ($500 wholesale · 1–144/yr)','Tier 2 ($450 wholesale · 145–360/yr)','Tier 3 ($400 wholesale · 361+/yr)'];
+  const rows=[
+    {l:'Partners (total)',      v:years.map(yr=>yr.partners),  cls:''},
+    {l:'Net new partners',      v:years.map(yr=>yr.newP),       cls:''},
+    {l:'Assessments / partner', v:years.map(()=>apy),           cls:''},
+    {l:'Wholesale tier',        v:years.map(()=>['T1','T2','T3'][t]), cls:''},
+    {l:'Gross margin',          v:years.map(yr=>pct(yr.gmPct)), cls:''},
+    {l:'Assessment GP',         v:years.map(yr=>fmtK(yr.assessGP)), cls:'gp-row'},
+    {l:'Certification revenue', v:years.map(yr=>fmtK(yr.certRev)), cls:'cert-row'},
+    {l:'Platform access fees',  v:years.map(yr=>fmtK(yr.pafRev)), cls:'paf-row'},
+    {l:'Total GP',              v:years.map(yr=>fmtK(yr.totalGP)), cls:'total-row'},
+  ];
+  const tbody=document.getElementById('tbody');
+  tbody.innerHTML='';
+  rows.forEach(r=>{
+    const tr=document.createElement('tr');
+    if(r.cls)tr.className=r.cls;
+    tr.innerHTML=`<td>${r.l}</td>`+r.v.map(v=>`<td>${v}</td>`).join('');
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('note-box').innerHTML=
+    `<strong>Reading this model:</strong> Partners enter at ${tNames[t]}. `+
+    `Practitioner Certification ($${CERT.toLocaleString()}) applies only to <em>net new</em> partners each year. `+
+    `Platform access fees ($${PAF.toLocaleString()}/yr) begin in Year 2 for all prior-year partners. `+
+    `At ${Math.round(g*100)}% annual growth from ${p0} partners, the channel reaches <strong>${y5.partners} partners by Year 5</strong> `+
+    `generating <strong>${fmtM(cum)} cumulative GP</strong> — additive to the company's core direct revenue.`;
+}
+</script>
+</body>
+</html>
